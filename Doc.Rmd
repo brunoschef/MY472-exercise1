@@ -1,0 +1,57 @@
+---
+title: "Doc"
+output: html_document
+date: '2023-10-31'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Importing dataset
+library(readr)
+approval <- read_csv("bidentrumpapproval.csv")
+```
+
+```{r}
+# Making function
+rating_difference <- function(dataset, month_col, president1_col, president2_col, state_pop, turnout_percent) {
+  
+  # Creating new variable 'difference' that calculates the difference in approval rating between Biden and Trump
+  dataset$approval_difference <- dataset[[president1_col]] - dataset[[president2_col]]
+  
+  # Creating new variables 'votes_biden' and 'votes_trump' that calculates expected number of votes in a state
+  votes_biden <- (state_pop * turnout_percent * 0.01) * (dataset[[president1_col]] / 100)
+  votes_trump <- (state_pop * turnout_percent * 0.01) * (dataset[[president2_col]] / 100)
+  dataset$Biden_Votes <- votes_biden
+  dataset$Trump_Votes <- votes_trump
+  
+  # Returns the transformed dataset
+  return(dataset)
+}
+
+# Testing the 'rating_difference' function
+approvalwithdiff <- rating_difference(approval, "Month", "BidenAvg", "TrumpAvg", 
+                                      state_pop = 5200000, turnout_percent = 65)
+
+head(approvalwithdiff)
+
+```
+
+The function takes a dataset that contains the approval ratings of Trump and Biden across the first 12 months of their presidencies, the population of a state and the expected turnout percentage. The first argument in the function calculates the difference in approval rating between the two presidents in each month, with positive numbers indicating Biden had a higher approval and negative numbers indicating Trump had a higher approval rating.
+
+The second argument allows for the user of the function to input the population of a state and the expected turnout rate. It then, assuming that the approval rating is the percentage of votes the president will receive in that state, calculates the expected number of votes for each candidate in each month.
+
+```{r}
+# Demonstrating the 'rating_difference' function with different input values
+approvalwithdiff2 <- rating_difference(approval, "Month", "BidenAvg", "TrumpAvg", 
+                                      state_pop = 1300000, turnout_percent = 70)
+
+head(approvalwithdiff2)
+
+```
+
+Above is another example of the function used with different state population and expected turnout. This demonstrates that the user of the function can edit these as desired and the data transformation will be different.
+
+
